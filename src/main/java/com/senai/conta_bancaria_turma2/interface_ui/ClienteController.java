@@ -4,8 +4,8 @@ import com.senai.conta_bancaria_turma2.application.dto.ClienteRegistroDTO;
 import com.senai.conta_bancaria_turma2.application.dto.ClienteResponseDTO;
 import com.senai.conta_bancaria_turma2.application.service.ClienteService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -31,4 +31,21 @@ public class ClienteController {
     public ResponseEntity<List<ClienteResponseDTO>> listarClientesAtivos() {
         return ResponseEntity.ok(service.listarClientesAtivos());
     }
+    @GetMapping("/cpf/{cpf}")
+    public ResponseEntity<ClienteResponseDTO> buscarClientePorCpf(@PathVariable String cpf) {
+        return ResponseEntity.ok(service.buscarClientePorCpf(cpf));
+    }
+
+    @PutMapping("/cpf/{cpf}")
+    public ResponseEntity<ClienteResponseDTO> atualizarCliente(@PathVariable String cpf, @RequestBody ClienteRegistroDTO dto) {
+
+        return ResponseEntity.ok(service.atualizarCliente(dto, cpf));
+    }
+
+    @DeleteMapping("/cpf/{cpf}")
+    public ResponseEntity<Void> deletarCliente(@PathVariable String cpf) {
+        service.deletarCliente(cpf);
+        return ResponseEntity.noContent().build();
+    }
+
 }

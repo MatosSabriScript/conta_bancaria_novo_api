@@ -4,7 +4,10 @@ import com.senai.conta_bancaria_turma2.application.dto.ClienteRegistroDTO;
 import com.senai.conta_bancaria_turma2.application.dto.ClienteResponseDTO;
 import com.senai.conta_bancaria_turma2.domain.repository.ClienteRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -21,7 +24,7 @@ public class ClienteService {
         );
 
         var contas = cliente.getContas();
-        var novaConta = dto.contaDTO().toEntity(cliente);
+        var novaConta = dto.contas().toEntity(cliente);
 
         boolean jaTemTipo = contas.stream()
                 .anyMatch(c -> c.getClass().equals(novaConta.getClass()) && c.isAtiva());
@@ -40,4 +43,32 @@ public class ClienteService {
                 .map(ClienteResponseDTO::fromEntity)
                 .toList();
     }
+
+    public ClienteResponseDTO buscarClientePorCpf(String cpf) {
+        var cliente = repository.findByCpfAndAtivoTrue(cpf)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+        return ClienteResponseDTO.fromEntity(cliente);
+    }
+
+    public ClienteResponseDTO atualizarCliente(ClienteRegistroDTO dto, String cpf) {
+        var cliente = repository.findByCpfAndAtivoTrue(cpf)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+
+        cliente.setNome(dto.nome());
+        cliente.setCpf(dto.cpf());
+
+        return ClienteResponseDTO.fromEntity(repository.save(cliente));
+    }
+
+    public void deletarCliente(String cpf) {
+        var cliente = repository.findByCpfAndAtivoTrue(cpf)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+
+        cliente.setAtivo(false);
+        cliente.getContas().forEach(
+                 conta -> conta.setAtiva(false)
+                 );
+        repository.save(cliente);
+    }
+
 }
