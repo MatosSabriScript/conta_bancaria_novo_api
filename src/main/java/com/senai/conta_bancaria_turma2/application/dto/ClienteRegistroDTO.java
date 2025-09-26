@@ -19,3 +19,4 @@ public record ClienteRegistroDTO(
                 .build();
     }
 }
+w
