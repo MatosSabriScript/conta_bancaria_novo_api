@@ -1,19 +1,22 @@
 package com.senai.conta_bancaria_turma2.interface_ui;
 
+import com.senai.conta_bancaria_turma2.application.dto.ContaAtualizacaoDTO;
 import com.senai.conta_bancaria_turma2.application.dto.ContaResumoDTO;
-import com.senai.conta_bancaria_turma2.application.service.ContService;
+import com.senai.conta_bancaria_turma2.application.dto.TransferenciaDTO;
+import com.senai.conta_bancaria_turma2.application.dto.ValorSaqueDepositoDTO;
+import com.senai.conta_bancaria_turma2.application.service.ContaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/api/conta")
 @RequiredArgsConstructor
 public class ContaController {
-    private final ContService service;
+
+    private final ContaService service;
 
     @GetMapping
     public ResponseEntity<List<ContaResumoDTO>> listarTodasContas() {
@@ -24,18 +27,34 @@ public class ContaController {
     public ResponseEntity<ContaResumoDTO> buscarContaPorNumero(@PathVariable String numeroDaConta) {
         return ResponseEntity.ok(service.buscarContaPorNumero(numeroDaConta));
     }
+    @PutMapping("/{numeroDaConta}")
+    public ResponseEntity<ContaResumoDTO> atualizarConta(@PathVariable String numeroDaConta, @RequestBody ContaAtualizacaoDTO dto){
 
-    @PutMapping ("/{numeroDaConta}")
-    public ResponseEntity<ContaResumoDTO> atualizarConta(@PathVariable String numeroDaConta) {
+        return ResponseEntity.ok(service.atualizarConta(numeroDaConta,dto));
+    }
+    @DeleteMapping("/{numeroDaConta}")
+    public ResponseEntity<Void> deletarConta(@PathVariable String numeroDaConta){
+        service.deletarConta(numeroDaConta);
+        return ResponseEntity.noContent().build();
+    }
+    @PostMapping("/{numeroDaConta}/sacar")
+    public ResponseEntity<ContaResumoDTO> sacar(@PathVariable String numeroDaConta, @RequestBody ValorSaqueDepositoDTO dto){
 
-        if (conta instanceof ContaCorrenteDTO) {
-            conta.setLimite(((ContaCorrenteDTO) conta).limite());
+        return ResponseEntity.ok(service.sacar(numeroDaConta,dto));
+    }
+    @PostMapping("/{numeroDaConta}/depositar")
+    public ResponseEntity<ContaResumoDTO> depositar(@PathVariable String numeroDaConta, @RequestBody ValorSaqueDepositoDTO dto) {
 
-            // lógica específica para ContaCorrente
-        } else if (conta instanceof ContaPoupancaDTO) {
-            // lógica específica para ContaPoupanca
-        }
+        return ResponseEntity.ok(service.depositar(numeroDaConta, dto));
+    }
+    @PostMapping("/{numeroDaConta}/transferir")
+    public ResponseEntity<ContaResumoDTO>transferir(@PathVariable String numeroDaConta, @RequestBody TransferenciaDTO dto) {
 
+        return ResponseEntity.ok(service.transferir(numeroDaConta, dto));
+    }
 
+    @PostMapping("/{numeroDaConta}/rendimento")
+    public ResponseEntity<ContaResumoDTO>aplicarRendimento(@PathVariable String numeroDaConta){
+        return ResponseEntity.ok(service.aplicarRendimento(numeroDaConta));
     }
 }
