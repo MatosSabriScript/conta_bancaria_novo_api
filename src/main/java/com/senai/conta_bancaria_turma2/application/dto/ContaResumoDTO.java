@@ -5,13 +5,18 @@ import com.senai.conta_bancaria_turma2.domain.entity.Conta;
 import com.senai.conta_bancaria_turma2.domain.entity.ContaCorrente;
 import com.senai.conta_bancaria_turma2.domain.entity.ContaPoupanca;
 import com.senai.conta_bancaria_turma2.domain.exceptions.TipoDeContaInativaException;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
 
 public record ContaResumoDTO(
+        @NotBlank
         String numero,
+        @NotNull
         String tipo,
+        @NotNull
         BigDecimal saldo
 ) {
     public Conta toEntity(Cliente cliente){
