@@ -14,12 +14,12 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Table(
-        name = "cliente",
-        uniqueConstraints = @UniqueConstraint(name = "uk_cliente_cpf", columnNames = "cpf")
+        name = "gerente",
+        uniqueConstraints = @UniqueConstraint(name = "uk_gerente_cpf", columnNames = "cpf")
 )
-public class Cliente {
+public class Gerente extends Usuario {
 
-    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "gerente", cascade = CascadeType.ALL)
     private List<Conta> contas;
 
 
