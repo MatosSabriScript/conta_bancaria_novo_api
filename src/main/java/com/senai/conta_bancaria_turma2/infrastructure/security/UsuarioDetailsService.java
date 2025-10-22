@@ -1,6 +1,6 @@
-package com.senai.modelo_autenticacao_autorizacao.infrastructure.security;
+package com.senai.conta_bancaria_turma2.infrastructure.security;
 
-import com.senai.modelo_autenticacao_autorizacao.domain.repository.UsuarioRepository;
+import com.senai.conta_bancaria_turma2.domain.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -8,6 +8,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+
 
 import java.util.List;
 

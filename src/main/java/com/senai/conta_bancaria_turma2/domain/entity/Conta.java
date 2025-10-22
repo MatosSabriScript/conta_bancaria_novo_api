@@ -24,7 +24,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public abstract class Conta {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.UUID) // Você pode manter UUID se for o tipo desejado
     private String id;
 
     @Column(nullable = false, length = 20)
@@ -49,16 +49,17 @@ public abstract class Conta {
         }
         this.saldo = this.saldo.subtract(valor);
     }
+
     public void depositar(BigDecimal valor) {
         validarValorMaiorQueZero(valor,"depósito");
         this.saldo = this.saldo.add(valor);
     }
+
     protected static void validarValorMaiorQueZero(BigDecimal valor, String operacao) {
         if (valor.compareTo(BigDecimal.ZERO) < 0) {
             throw new ValoresNegativosException(operacao);
         }
     }
-
 
     public void transferir(BigDecimal valor, Conta contaDestino) {
         if (this.id.equals(contaDestino.getId())) {
@@ -68,6 +69,4 @@ public abstract class Conta {
         this.sacar(valor);
         contaDestino.depositar(valor);
     }
-
-
 }

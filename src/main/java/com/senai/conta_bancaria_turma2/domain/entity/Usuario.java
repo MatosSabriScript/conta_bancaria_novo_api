@@ -2,6 +2,14 @@ package com.senai.conta_bancaria_turma2.domain.entity;
 
 
 import com.senai.conta_bancaria_turma2.domain.enums.Role;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
@@ -20,7 +28,6 @@ public abstract class Usuario {
     @Column(nullable = false)
     protected String nome;
 
-    @NotBlank
     @Column(nullable = false, unique = true, length = 14)
     protected String cpf; // formato "000.000.000-00" (validação pode ser ampliada)
 

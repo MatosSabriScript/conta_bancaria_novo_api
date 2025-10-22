@@ -1,4 +1,4 @@
-package com.senai.modelo_autenticacao_autorizacao.infrastructure.security;
+package com.senai.conta_bancaria_turma2.infrastructure.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -10,7 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.*;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -26,8 +26,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**","/swagger-ui/**","/v3/api-docs/**").permitAll()
 
-                        .requestMatchers(HttpMethod.POST, "/professores").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/professores").hasAnyRole("ADMIN","PROFESSOR")
+                        .requestMatchers(HttpMethod.POST, "/api/cliente/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/cliente/**").hasAnyRole("ADMIN","CLIENTE")
+
+                        .requestMatchers(HttpMethod.PUT, "/api/conta/**").hasRole("CLIENTE")
+                        .requestMatchers(HttpMethod.GET, "/api/conta/**").hasAnyRole("CLIENTE")
+                        .requestMatchers(HttpMethod.DELETE, "/api/conta/**").hasAnyRole("CLIENTE")
 
                         .anyRequest().authenticated()
                 )
@@ -48,4 +52,3 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 }
-

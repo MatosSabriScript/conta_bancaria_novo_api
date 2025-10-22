@@ -6,36 +6,45 @@ import com.senai.conta_bancaria_turma2.domain.entity.Cliente;
 import com.senai.conta_bancaria_turma2.domain.exceptions.ContaMesmoTipoException;
 import com.senai.conta_bancaria_turma2.domain.exceptions.EntidadeNaoEncontradaException;
 import com.senai.conta_bancaria_turma2.domain.repository.ClienteRepository;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@Service
-@RequiredArgsConstructor
-public class ClienteService {
 
+@Service
+
+@RequiredArgsConstructor
+@Transactional
+public class ClienteService {
     private final ClienteRepository repository;
 
-    public ClienteResponseDTO registarClienteOuAnexarConta(ClienteRegistroDTO dto) {
+    private final PasswordEncoder passwordEncoder;
 
+
+    public ClienteResponseDTO registarClienteOuAnexarConta(ClienteRegistroDTO dto) {
         var cliente = repository.findByCpfAndAtivoTrue(dto.cpf()).orElseGet(
                 () -> repository.save(dto.toEntity())
         );
 
         var contas = cliente.getContas();
-        var novaConta = dto.contas().toEntity(cliente);
+        var novaConta = dto.contaDTO().toEntity(cliente);
 
         boolean jaTemTipo = contas.stream()
                 .anyMatch(c -> c.getClass().equals(novaConta.getClass()) && c.isAtiva());
 
         if(jaTemTipo)
             throw new ContaMesmoTipoException();
+
         cliente.getContas().add(novaConta);
 
+        cliente.setSenha(passwordEncoder.encode(dto.senha()));
 
         return ClienteResponseDTO.fromEntity(repository.save(cliente));
     }
@@ -46,12 +55,12 @@ public class ClienteService {
                 .toList();
     }
 
-    public ClienteResponseDTO buscarClientePorCpf(String cpf) {
+    public ClienteResponseDTO buscarClienteAtivoPorCpf(String cpf) {
         var cliente = buscarPorCpfClienteAtivo(cpf);
         return ClienteResponseDTO.fromEntity(cliente);
     }
 
-    public ClienteResponseDTO atualizarCliente(ClienteRegistroDTO dto, String cpf) {
+    public ClienteResponseDTO atualizarCliente(String cpf, ClienteRegistroDTO dto) {
         var cliente = buscarPorCpfClienteAtivo(cpf);
 
         cliente.setNome(dto.nome());
@@ -65,15 +74,22 @@ public class ClienteService {
 
         cliente.setAtivo(false);
         cliente.getContas().forEach(
-                 conta -> conta.setAtiva(false)
-                 );
+                conta -> conta.setAtiva(false)
+        );
         repository.save(cliente);
     }
 
     private Cliente buscarPorCpfClienteAtivo(String cpf) {
-        var cliente = repository.findByCpfAndAtivoTrue(cpf)
-                .orElseThrow(() -> new EntidadeNaoEncontradaException("cliente"));
+        var cliente = repository.findByCpfAndAtivoTrue(cpf).orElseThrow(
+                () -> new EntidadeNaoEncontradaException("Cliente")
+        );
         return cliente;
+    }
+
+    public ClienteResponseDTO buscarClientePorCpf(@Valid String cpf) {
+        var cliente = repository.findByCpfAndAtivoTrue(cpf)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Cliente com CPF " + cpf));
+        return ClienteResponseDTO.fromEntity(cliente);
     }
 
 }

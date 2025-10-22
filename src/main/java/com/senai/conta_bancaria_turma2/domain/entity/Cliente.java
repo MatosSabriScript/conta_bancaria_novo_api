@@ -1,10 +1,8 @@
 package com.senai.conta_bancaria_turma2.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
@@ -12,15 +10,19 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 @Table(
         name = "cliente",
         uniqueConstraints = @UniqueConstraint(name = "uk_cliente_cpf", columnNames = "cpf")
 )
-public class Cliente {
+public class Cliente extends Usuario {
 
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
     private List<Conta> contas;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "gerente_id")
+    private Gerente gerente;
 
 
 }
