@@ -1,5 +1,6 @@
 package com.senai.conta_bancaria_turma2.application.service;
 
+
 import com.senai.conta_bancaria_turma2.application.dto.AuthDTO;
 import com.senai.conta_bancaria_turma2.domain.entity.Usuario;
 import com.senai.conta_bancaria_turma2.domain.exceptions.UsuarioNaoEncontradoException;
@@ -13,19 +14,22 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-
     private final UsuarioRepository usuarios;
     private final PasswordEncoder encoder;
     private final JwtService jwt;
 
+
     public String login(AuthDTO.LoginRequest req) {
+        // Busca o usuário pelo e-mail no repositório
         Usuario usuario = usuarios.findByEmail(req.email())
                 .orElseThrow(() -> new UsuarioNaoEncontradoException());
 
+        // Valida a senha usando o PasswordEncoder
         if (!encoder.matches(req.senha(), usuario.getSenha())) {
             throw new BadCredentialsException("Credenciais inválidas");
         }
 
+        // Gera e retorna o token JWT contendo e-mail e role do usuário
         return jwt.generateToken(usuario.getEmail(), usuario.getRole().name());
     }
 }

@@ -4,32 +4,60 @@ import com.senai.conta_bancaria_turma2.domain.entity.Cliente;
 import com.senai.conta_bancaria_turma2.domain.entity.Conta;
 import com.senai.conta_bancaria_turma2.domain.entity.ContaCorrente;
 import com.senai.conta_bancaria_turma2.domain.entity.ContaPoupanca;
-import com.senai.conta_bancaria_turma2.domain.exceptions.TipoDeContaInativaException;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
 
-
+@Schema(
+        name = "ContaResumoDTO",
+        description = "Representa um resumo dos dados essenciais de uma conta bancária, incluindo número, tipo e saldo."
+)
 public record ContaResumoDTO(
-        @NotBlank
+
+        @Schema(
+                description = "Número único da conta bancária.",
+                example = "1234567890"
+        )
+        @NotBlank(message = "Número da conta não pode ser vazio")
+        @Size(min = 6, max = 20, message = "Número da conta deve ter entre 6 e 20 caracteres")
         String numero,
-        @NotNull
+
+        @Schema(
+                description = "Tipo de conta: pode ser 'CORRENTE' ou 'POUPANCA'.",
+                example = "CORRENTE"
+        )
+        @NotBlank(message = "Tipo de conta não pode ser vazio")
+        @Pattern(
+                regexp = "^(CORRENTE|POUPANCA)$",
+                message = "Tipo de conta deve ser 'CORRENTE' ou 'POUPANCA'"
+        )
         String tipo,
-        @NotNull
+
+        @Schema(
+                description = "Saldo atual disponível na conta.",
+                example = "2500.50"
+        )
+        @DecimalMin(value = "0.00", inclusive = true, message = "Saldo não pode ser negativo")
+        @Digits(integer = 15, fraction = 2, message = "Saldo deve ter até 15 dígitos inteiros e 2 decimais")
         BigDecimal saldo
 ) {
-    public Conta toEntity(Cliente cliente){
-        if("CORRENTE".equalsIgnoreCase(tipo)){
+
+    /**
+     * Converte o DTO em uma entidade Conta, vinculando-a a um cliente existente.
+     * Cria automaticamente instâncias de ContaCorrente ou ContaPoupanca conforme o tipo informado.
+     */
+    public Conta toEntity(Cliente cliente) {
+        if ("CORRENTE".equalsIgnoreCase(tipo)) {
             return ContaCorrente.builder()
                     .numero(this.numero)
                     .saldo(this.saldo)
                     .ativa(true)
                     .cliente(cliente)
-                    .limite(new BigDecimal("500.0"))
+                    .limite(new BigDecimal("500.00"))
                     .taxa(new BigDecimal("0.05"))
                     .build();
-        } else if ("POUPANCA".equalsIgnoreCase(tipo)){
+        } else if ("POUPANCA".equalsIgnoreCase(tipo)) {
             return ContaPoupanca.builder()
                     .numero(this.numero)
                     .saldo(this.saldo)
@@ -38,14 +66,17 @@ public record ContaResumoDTO(
                     .cliente(cliente)
                     .build();
         }
-        throw new TipoDeContaInativaException();
+        return null;
     }
-    public static ContaResumoDTO fromEntity(Conta c) {
+
+    /**
+     * Converte uma entidade Conta em um DTO de resumo, contendo apenas informações principais.
+     */
+    public static ContaResumoDTO fromEntity(Conta conta) {
         return new ContaResumoDTO(
-                c.getNumero(),
-                c.getTipo(),
-                c.getSaldo()
+                conta.getNumero(),
+                conta.getTipo(),
+                conta.getSaldo()
         );
     }
 }
-
