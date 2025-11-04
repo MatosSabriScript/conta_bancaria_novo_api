@@ -2,39 +2,46 @@ package com.senai.conta_bancaria_turma2.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.zip.DataFormatException;
+
 
 @Entity
 @Data
 @SuperBuilder
-@NoArgsConstructor
-@Table(name = "pagamento",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_pagamento_numero", columnNames = "numeroPagamento")
-        }
-)
+@Table(name="pagamento")
+@DiscriminatorValue("PAGAMENTO")
+
 public class Pagamento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true)
     private String boleto;
+
+
+    @Column(nullable = false, unique = true)
     private LocalDateTime dataPagamento;
-    private Enum status;
+
+    @Column(nullable = false)
     private Double valorPago;
+
+    @Column(nullable = false)
+    private StatusPagamento status;
+
+
 
     // Associação com a Conta
     @ManyToOne
     @JoinColumn(name = "conta_id", nullable = false)
     private Conta conta;
 
-    private String descricao;
+    // Associação ManyToOne com Taxa
+    @ManyToOne
+    @JoinColumn(name = "taxa_id", nullable = true)
+    private Taxas taxa;
 
-    private String status;
 
     // Métodos de lógica de pagamento podem ser adicionados aqui
 }
