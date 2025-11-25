@@ -6,7 +6,7 @@ import com.senai.conta_bancaria_turma2.domain.entity.Cliente;
 import com.senai.conta_bancaria_turma2.domain.exceptions.ContaMesmoTipoException;
 import com.senai.conta_bancaria_turma2.domain.exceptions.EntidadeNaoEncontradaException;
 import com.senai.conta_bancaria_turma2.domain.repository.ClienteRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -90,6 +90,12 @@ public class ClienteService {
         var cliente = repository.findByCpfAndAtivoTrue(cpf)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Cliente com CPF " + cpf));
         return ClienteResponseDTO.fromEntity(cliente);
+    }
+
+    @Transactional(readOnly = true)
+    public Cliente buscarPorId(String id) {
+        return repository.findByIdAndAtivoTrue(id)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Cliente"));
     }
 
 }

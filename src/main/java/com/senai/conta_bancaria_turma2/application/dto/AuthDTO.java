@@ -2,7 +2,8 @@ package com.senai.conta_bancaria_turma2.application.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-public record AuthDTO() {
+public record
+AuthDTO() {
     @Schema(
             name = "LoginRequest",
             description = "Objeto enviado no corpo da requisição de login contendo as credenciais do usuário."

@@ -11,6 +11,8 @@ import java.util.Optional;
 public interface ContaRepository extends JpaRepository<Conta, String> {
 
     List<Conta> findAllByAtivaTrue();
+
     Optional<Conta> findByNumeroAndAtivaTrue(String numero);
 
+    Optional<Conta> findByIdAndAtivaTrue(String id); // <-- ADICIONE ESTE MÉTODO
 }
