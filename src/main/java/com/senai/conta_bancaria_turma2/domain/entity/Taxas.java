@@ -5,28 +5,27 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.math.BigDecimal;
+
 @Entity
 @Data
-@SuperBuilder
-@NoArgsConstructor
-@Table(name = "taxa")
-
-
-
 public class Taxas {
     @Id
-    @GeneratedValue(strategy = jakarta.persistence.GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column (nullable = false, unique = true)
-    @Enumerated (EnumType.STRING)
+    @Column(nullable = false, unique = true)
+    @Enumerated(EnumType.STRING)
     private TaxasDescriçao descricao;
 
     @Column(nullable = false)
     private Double percentual;
 
     @Column(nullable = false)
-    private Double valorFixo;
+    private BigDecimal valorFixo;
 
-
+    // Metodo para obter o valor da taxa
+    public BigDecimal getValor() {
+        return valorFixo;
+    }
 }

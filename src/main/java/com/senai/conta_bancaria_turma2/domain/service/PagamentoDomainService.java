@@ -32,7 +32,7 @@ public class PagamentoDomainService {
         BigDecimal taxaPercentual = BigDecimal.valueOf(valorBoleto)
                 .multiply(BigDecimal.valueOf(taxa.getPercentual() / 100));
 
-        BigDecimal taxaFixa = BigDecimal.valueOf(taxa.getValorFixo());
+        BigDecimal taxaFixa = BigDecimal.valueOf(taxa.getValorFixo().doubleValue());
 
         BigDecimal totalTaxas = taxaPercentual.add(taxaFixa);
 

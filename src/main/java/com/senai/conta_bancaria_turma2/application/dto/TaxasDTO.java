@@ -37,7 +37,7 @@ public record TaxasDTO(
                 .id(taxas.getId())
                 .descricao(taxas.getDescricao())
                 .percentual(taxas.getPercentual())
-                .valorFixo(taxas.getValorFixo())
+                .valorFixo(taxas.getValorFixo().doubleValue())
                 .build();
 
     }
@@ -46,7 +46,7 @@ public record TaxasDTO(
                 .id(taxas.getId())
                 .descricao(taxas.getDescricao())
                 .percentual(taxas.getPercentual())
-                .valorFixo(taxas.getValorFixo())
+                .valorFixo(taxas.getValorFixo().doubleValue())
                 .build();
     }
 }

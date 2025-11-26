@@ -2,6 +2,8 @@ package com.senai.conta_bancaria_turma2.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import java.time.LocalDateTime;
 
@@ -9,8 +11,9 @@ import java.time.LocalDateTime;
 // se estiver usando Single Table Inheritance com @DiscriminatorValue.
 
 @Entity
-@Data
 @SuperBuilder
+@Getter
+@Setter
 @Table(name="pagamento")
 @DiscriminatorValue("PAGAMENTO")
 public class Pagamento {
