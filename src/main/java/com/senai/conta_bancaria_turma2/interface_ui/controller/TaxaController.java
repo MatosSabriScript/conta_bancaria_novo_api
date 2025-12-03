@@ -1,12 +1,15 @@
 package com.senai.conta_bancaria_turma2.interface_ui.controller;
 
+import com.senai.conta_bancaria_turma2.application.dto.TaxasDTO;
 import com.senai.conta_bancaria_turma2.domain.entity.Taxas;
 import com.senai.conta_bancaria_turma2.domain.repository.TaxasRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
 
@@ -44,13 +47,14 @@ public class TaxaController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('GERENTE','ADMIN')")
-    public ResponseEntity<Taxas> atualizar(@PathVariable Long id, @RequestBody Taxas dto) {
+    public ResponseEntity<Taxas> atualizar(@PathVariable Long id, @Valid @RequestBody TaxasDTO dto) {
         return repo.findById(id)
                 .map(existente -> {
-                    existente.setDescricao(dto.getDescricao());
-                    existente.setPercentual(dto.getPercentual());
-                    existente.setValorFixo(dto.getValorFixo());
-                    return ResponseEntity.ok(repo.save(existente));
+                    existente.setDescricao(dto.descricao());
+                    existente.setPercentual(dto.percentual());
+                    existente.setValorFixo(BigDecimal.valueOf(dto.valorFixo()));
+                    Taxas atualizado = repo.save(existente);
+                    return ResponseEntity.ok(atualizado);
                 })
                 .orElse(ResponseEntity.notFound().build());
     }

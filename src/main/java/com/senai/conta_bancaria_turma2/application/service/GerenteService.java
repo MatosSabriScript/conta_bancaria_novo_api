@@ -41,7 +41,7 @@ public class GerenteService {
         return GerenteDTO.fromEntity(entity);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','CLIENTE')")
+    @PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
     public GerenteDTO buscarGerentePorId(String id) {
         Gerente gerente = gerenteRepository.findById(id)
                 .orElseThrow(() -> new EntidadeNaoEncontradaException("Gerente"));

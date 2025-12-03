@@ -23,7 +23,7 @@ public record GerenteDTO(
 
         @Schema(
                 description = "Nome completo do gerente responsável pela administração de contas e clientes.",
-                example = "Mariana Costa"
+                example = "Sabrina Matos"
         )
         @NotBlank(message = "O nome é obrigatório.")
         @Size(min = 3, max = 100, message = "O nome deve ter entre 3 e 100 caracteres.")
@@ -38,7 +38,7 @@ public record GerenteDTO(
 
         @Schema(
                 description = "E-mail corporativo do gerente utilizado para login e comunicação interna.",
-                example = "mariana.costa@banco.com"
+                example = "sabrina.matos@banco.com"
         )
         @NotBlank(message = "O e-mail é obrigatório.")
         @Email(message = "O e-mail informado não é válido.")
@@ -46,7 +46,7 @@ public record GerenteDTO(
 
         @Schema(
                 description = "Senha de acesso do gerente (armazenada de forma segura no sistema).",
-                example = "senhaSegura123"
+                example = "senha1234"
         )
         @NotBlank(message = "A senha é obrigatória.")
         @Size(min = 6, message = "A senha deve ter pelo menos 6 caracteres.")
