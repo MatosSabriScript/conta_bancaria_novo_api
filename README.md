@@ -186,25 +186,6 @@ mvn spring-boot:run
 
 ---
 
-# 📁 Estrutura Recomendada
-
-```
-src/main/java/com/banco/
-  api/
-    controllers/
-    dto/
-    exception/
-  application/
-    service/
-  domain/
-    model/
-    service/
-    exception/
-  infrastructure/
-    repository/
-    mqtt/
-    security/
-```
 
 ---
 
@@ -212,6 +193,4 @@ src/main/java/com/banco/
 
 Projeto desenvolvido como parte da sprint **Pagamentos com Taxas e Autenticação IoT**.
 
----
 
-Se quiser, posso também gerar **versão com emojis reduzidos**, **versão minimalista**, ou **com sumário automático**.
