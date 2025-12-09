@@ -1,254 +1,217 @@
-🏦 Pagamentos com Taxas e Autenticação IoT
-Evolução do Sistema de Conta Bancária – Sprint: Pagamentos, Taxas e Integração IoT
 
-Este projeto é a continuação do sistema de Conta Bancária, agora expandido para incluir pagamentos com aplicação de taxas financeiras, autenticação avançada via IoT, melhorias de segurança e arquitetura em camadas seguindo DDD.
+# 🏦 Pagamentos com Taxas e Autenticação IoT
 
-📌 Objetivo da Sprint
+## Evolução do Sistema de Conta Bancária – Sprint: Pagamentos, Taxas e Integração IoT
 
-Aprimorar o sistema bancário já desenvolvido, adicionando:
+Este projeto é a continuação do sistema de **Conta Bancária**, agora expandido para incluir **pagamentos com aplicação de taxas**, **autenticação via IoT**, **segurança reforçada** e **arquitetura em camadas (DDD)**.
 
-Módulo de pagamentos (boletos e contas de serviço)
+---
 
-Cálculo automático de taxas financeiras
+# 🧱 Arquitetura e Padrões Utilizados
 
-Novas entidades de domínio (Pagamento, Taxa, DispositivoIoT, CodigoAutenticacao)
+* **DDD (Domain-Driven Design)**
+* **Arquitetura em camadas**
 
-Integração com um dispositivo IoT via MQTT
+  * Domain
+  * Application
+  * Infrastructure
+  * API
+* **Spring Boot + Spring Security**
+* **JWT para autenticação**
+* **MQTT para comunicação IoT**
+* **Swagger/OpenAPI**
 
-Autenticação multifator para operações sensíveis
+---
 
-Documentação completa via Swagger
+# 🧩 Novas Funcionalidades da Sprint
 
-Regra de acesso baseada em perfis (cliente / gerente)
+---
 
-Tratamento padronizado de exceções com ProblemDetail
+# 🔹 Módulo de Pagamentos
 
-🧱 Arquitetura e Padrões Utilizados
+A entidade **Pagamento** representa qualquer operação de pagamento feita por uma conta.
 
-O sistema segue conceitos de:
+### Atributos:
 
-DDD (Domain-Driven Design)
+* `id`
+* `conta` (ManyToOne)
+* `boleto`
+* `valorPago`
+* `dataPagamento`
+* `status`
+* `taxas` (ManyToMany)
 
-Arquitetura em camadas
+### Regras de negócio:
 
-Domain: regras de negócio e serviços de domínio
+* valor debitado = **valorPago + totalDeTaxas**
+* saldo insuficiente → operação falha
+* boleto vencido → operação falha
+* regras → **PagamentoDomainService**
+* persistência/orquestração → **PagamentoAppService**
 
-Application: orquestração, DTOs, casos de uso
+---
 
-Infrastructure: repositórios JPA, MQTT, segurança
+# 🔹 Entidade Taxa
 
-API: controllers REST
+Usada para calcular os custos de uma operação.
 
-Spring Boot + Spring Security
+### Atributos:
 
-Autenticação JWT
+* `id`
+* `descricao`
+* `percentual`
+* `valorFixo` (opcional)
 
-Swagger/OpenAPI para documentação
+Apenas **gerentes** podem cadastrar taxas.
 
-MQTT (paho / HiveMQ) para comunicação IoT
+---
 
-🧩 Novas Funcionalidades
-1. 🔹 Módulo de Pagamentos
+# 🔐 Autenticação IoT via MQTT
 
-Foi criada a entidade Pagamento, representando qualquer operação de pagamento realizada a partir de uma conta.
+Para operações sensíveis, o cliente deve confirmar pelo dispositivo IoT (biometria + código aleatório).
 
-Pagamento
+---
 
-Atributos principais:
+# 📦 Novas Entidades IoT
 
-id
+## **DispositivoIoT**
 
-conta (ManyToOne)
+* `id`
+* `codigoSerial`
+* `chavePublica`
+* `ativo`
+* relação **@OneToOne** com Cliente
 
-boleto
+## **CodigoAutenticacao**
 
-valorPago
+* `id`
+* `codigo`
+* `expiraEm`
+* `validado`
+* `cliente`
 
-dataPagamento
+---
 
-status (SUCESSO, FALHA, SALDO_INSUFICIENTE etc.)
+# 🔐 Fluxo de Autenticação IoT
 
-taxas (ManyToMany com Taxa)
+1. Cliente inicia um pagamento/saque/transferência
+2. Backend publica no tópico:
 
-Regras:
+   ```
+   banco/autenticacao/{idCliente}
+   ```
+3. Dispositivo solicita biometria
+4. Após validar, publica:
 
-O valor debitado = valorPago + totalDeTaxas
+   ```
+   banco/validacao/{idCliente}
+   ```
+5. Backend confere validade e prazo
+6. Libera ou bloqueia a operação
 
-Se saldo insuficiente → operação falha
+Se expirar → **AutenticacaoIoTExpiradaException**
 
-Se boleto vencido → operação falha
+---
 
-Toda lógica central fica no PagamentoDomainService
+# ⚠️ Exceções Personalizadas
 
-Persistência e orquestração no PagamentoAppService
+* `SaldoInsuficienteException`
+* `PagamentoInvalidoException`
+* `TaxaInvalidaException`
+* `AutenticacaoIoTExpiradaException`
+* `CodigoAutenticacaoInvalidoException`
 
-2. 🔹 Entidade Taxa
+Todas tratadas com **ProblemDetail** e **RestControllerAdvice**.
 
-Usada para definir custos variáveis sobre o pagamento.
+---
 
-Taxa
+# 🔐 Regras de Segurança
 
-id
+* JWT obrigatório
+* Perfil **cliente** → realizar pagamentos
+* Perfil **gerente** → gerenciar taxas
+* Endpoints `/pagamentos` e `/taxas` protegidos
 
-descricao (ex: IOF, Tarifa Bancária, Conversão Internacional)
+---
 
-percentual
+# 🧪 Endpoints
 
-valorFixo (opcional)
+## **Pagamentos (`/pagamentos`)**
 
-Apenas gerentes podem cadastrar e gerenciar taxas.
+* POST /pagamentos
+* GET /pagamentos/{id}
+* GET /pagamentos
 
-3. 🔹 Autenticação IoT via MQTT
+## **Taxas (`/taxas`)**
 
-Para operações sensíveis (pagamentos, saques, transferências), o sistema exige uma confirmação IoT por biometria.
+* POST /taxas *(somente gerentes)*
+* GET /taxas
 
-Foram criadas duas novas entidades:
+## **IoT (`/iot`)**
 
-DispositivoIoT
+* POST /iot/dispositivo
+* POST /iot/codigo
 
-id
+Documentação completa no Swagger.
 
-codigoSerial
+---
 
-chavePublica
-
-ativo
-
-Relacionamento @OneToOne com Cliente
-
-CodigoAutenticacao
-
-id
-
-codigo
-
-expiraEm
-
-validado
-
-cliente
-
-🔐 Fluxo de Autenticação IoT
-
-O cliente inicia uma operação sensível
-
-O backend publica no tópico:
-
-banco/autenticacao/{idCliente}
-
-
-O dispositivo IoT solicita a biometria
-
-Ao validar, publica:
-
-banco/validacao/{idCliente}
-
-
-O backend verifica:
-
-se o código é válido
-
-se está no prazo
-
-Libera ou bloqueia a operação
-
-Se o tempo expirar → AutenticacaoIoTExpiradaException
-
-⚠️ Exceções Personalizadas
-
-Seguindo padrão com RestControllerAdvice + ProblemDetail:
-
-SaldoInsuficienteException
-
-PagamentoInvalidoException
-
-TaxaInvalidaException
-
-AutenticacaoIoTExpiradaException
-
-CodigoAutenticacaoInvalidoException
-
-Entre outras...
-
-🔐 Segurança
-
-Autenticação: JWT
-
-Autorização:
-
-clientes → realizar pagamentos
-
-gerentes → gerenciar taxas e consultar dados sensíveis
-
-Todos endpoints /pagamentos e /taxas exigem token válido
-
-🧪 Endpoints (Principais)
-Pagamentos (/pagamentos)
-
-POST /pagamentos – criar pagamento
-
-GET /pagamentos/{id} – consultar pagamento
-
-GET /pagamentos – listar
-
-Taxas (/taxas)
-
-POST /taxas – criar taxa (somente gerentes)
-
-GET /taxas – listar
-
-IoT (/iot)
-
-POST /iot/dispositivo – registrar dispositivo
-
-POST /iot/codigo – gerar código de autenticação
-
-Toda documentação está disponível no Swagger.
-
-🔌 Integração MQTT
-
-O backend usa um broker MQTT para:
-
-publicar solicitações de autenticação
-
-assinar confirmações de validação
+# 🔌 Integração MQTT
 
 Tópicos utilizados:
 
+```
 banco/autenticacao/{idCliente}
 banco/validacao/{idCliente}
+```
 
-📘 Documentação da API
+---
+
+# 📘 Documentação da API
 
 Disponível em:
 
+```
 /swagger-ui.html
+```
 
+---
 
-ou
+# 📦 Como Executar o Projeto
 
-/api-docs
-
-✔️ Objetivos de Aprendizagem da Sprint
-
-Aplicar DDD na modelagem de regras complexas
-
-Criar serviços de domínio e aplicação
-
-Usar Spring Security com JWT
-
-Integrar com IoT via MQTT
-
-Implementar cálculos financeiros e validações
-
-Documentar tudo profissionalmente com Swagger
-
-Criar um sistema robusto, próximo de um ambiente real
-
-📦 Como Executar o Projeto
+```bash
 mvn clean install
 mvn spring-boot:run
+```
 
-🧑‍💻 Autor
+---
 
-Projeto desenvolvido como parte da sprint de Pagamentos e Autenticação IoT do curso de desenvolvimento.
+# 📁 Estrutura Recomendada
+
+```
+src/main/java/com/banco/
+  api/
+    controllers/
+    dto/
+    exception/
+  application/
+    service/
+  domain/
+    model/
+    service/
+    exception/
+  infrastructure/
+    repository/
+    mqtt/
+    security/
+```
+
+---
+
+# 🧑‍💻 Autor
+
+Projeto desenvolvido como parte da sprint **Pagamentos com Taxas e Autenticação IoT**.
+
+---
+
+Se quiser, posso também gerar **versão com emojis reduzidos**, **versão minimalista**, ou **com sumário automático**.
